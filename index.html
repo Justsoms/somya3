@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luxury Portfolio | Somya Dang</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700;1,900&family=Montserrat:wght@200;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+
+    <style>
+        :root {
+            --bg: #080808;
+            --accent: #D4AF37;
+            --text: #ffffff;
+            --subtext: #888888;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+        body { background: var(--bg); color: var(--text); font-family: 'Montserrat', sans-serif; overflow-x: hidden; }
+
+        /* --- ADDED: Loader Styling (No changes to other CSS) --- */
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            background: #000; z-index: 20000;
+            display: flex; justify-content: center; align-items: center;
+        }
+        #loader-name {
+            font-family: 'Playfair Display', serif; 
+            font-size: clamp(40px, 10vw, 120px); 
+            color: var(--accent); letter-spacing: 5px; 
+            font-style: italic; font-weight: 700;
+        }
+
+        /* --- Custom Cursor --- */
+        #cursor-dot { width: 6px; height: 6px; background: var(--accent); position: fixed; border-radius: 50%; z-index: 10001; pointer-events: none; }
+        #cursor-outline { width: 40px; height: 40px; border: 1px solid var(--accent); position: fixed; border-radius: 50%; z-index: 10000; pointer-events: none; transition: transform 0.15s ease-out; opacity: 0.5; }
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed; top: 30px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 30px; padding: 15px 40px;
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px);
+            border-radius: 100px; border: 1px solid rgba(255,255,255,0.1); z-index: 1000;
+        }
+        nav a { color: var(--subtext); text-decoration: none; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; transition: 0.3s; }
+        nav a:hover, nav a.active { color: var(--accent); }
+
+        /* --- Hero --- */
+        .hero { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        .title-serif { font-family: 'Playfair Display', serif; font-size: clamp(60px, 12vw, 160px); line-height: 0.85; text-transform: uppercase; }
+        .gold { color: var(--accent); font-style: italic; font-weight: 400; }
+
+        /* --- About Sequence --- */
+        .about-sequence-container { position: relative; height: 120vh; background: #080808; margin: 0; }
+        .sticky-wrapper { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .sequence-word { font-family: 'Playfair Display', serif; font-size: 8vw; font-style: italic; position: absolute; opacity: 0; color: var(--accent); transform: scale(0.8); pointer-events: none; text-align: center; width: 100%; }
+
+        .efficiency-layout {
+            position: absolute; width: 100%; display: flex; align-items: center; justify-content: space-between; padding: 0 10%;
+            opacity: 0; visibility: hidden; transform: translateY(30px);
+        }
+        .eff-left { width: 55%; }
+        .eff-left h2 { font-family: 'Playfair Display', serif; font-size: 5vw; line-height: 1.1; color: white; margin-bottom: 25px; }
+        .eff-left h2 span { color: var(--accent); font-style: italic; }
+        .eff-left p { color: var(--subtext); font-size: 1.1rem; line-height: 1.6; max-width: 500px; }
+        .eff-right { width: 35%; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .circle-photo { width: 320px; height: 320px; border: 1px solid var(--accent); border-radius: 50%; margin-bottom: 25px; overflow: hidden; }
+        .circle-photo img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-name { font-weight: 700; letter-spacing: 1px; margin-bottom: 5px; text-transform: uppercase; font-size: 14px; }
+        .profile-sub { color: var(--accent); font-size: 10px; letter-spacing: 2px; }
+
+        /* --- WORK SECTION --- */
+        #projects { padding: 120px 10%; background: #080808; }
+        .work-list { margin-top: 60px; border-top: 1px solid #222; }
+        .work-item { display: flex; justify-content: space-between; align-items: center; padding: 40px 0; border-bottom: 1px solid #222; position: relative; transition: 0.4s; }
+        .work-item h3 { font-family: 'Playfair Display', serif; font-size: 3.5vw; font-style: italic; font-weight: 400; transition: 0.4s; }
+        .work-meta { text-align: right; }
+        .work-category { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+        .work-year { font-size: 10px; letter-spacing: 2px; color: var(--subtext); }
+        .work-item:hover h3 { padding-left: 30px; color: var(--accent); }
+
+        /* --- Journal --- */
+        #journal { padding: 100px 10%; background: #080808; }
+        .journal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-top: 50px; }
+        .j-card { background: #111; padding: 50px 35px; border: 1px solid #222; border-radius: 12px; transition: 0.4s; }
+        .j-card:hover { border-color: var(--accent); transform: translateY(-10px); }
+
+        /* --- Contact --- */
+        #contact { padding: 120px 10%; background: #080808; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-height: 100vh;}
+        #contact h1 { margin-bottom: 60px; font-size: clamp(50px, 8vw, 100px); }
+        #contact form { width: 100%; max-width: 800px; }
+        input, textarea { width: 100%; background: transparent; border: none; border-bottom: 1px solid #333; padding: 25px 0; color: white; margin-bottom: 40px; outline: none; font-family: 'Montserrat', sans-serif; font-size: 16px; }
+        .btn { padding: 20px 60px; background: var(--accent); border: none; font-weight: bold; cursor: none; text-transform: uppercase; letter-spacing: 2px; }
+        #journal-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fdfaf5; color: #1a1a1a; z-index: 6000; padding: 100px 15%; display: none; overflow-y: auto; }
+    </style>
+</head>
+<body>
+
+    <div id="loader">
+        <div id="loader-name">SOMYA DANG</div>
+    </div>
+
+    <div id="cursor-dot"></div>
+    <div id="cursor-outline"></div>
+
+    <nav>
+        <a href="#home" class="nav-link">Home</a>
+        <a href="#about" class="nav-link">About</a>
+        <a href="#projects" class="nav-link">Work</a>
+        <a href="#journal" class="nav-link">Journal</a>
+        <a href="#contact" class="nav-link">Contact</a>
+    </nav>
+
+    <section id="home" class="hero">
+        <p id="main-hero-name" style="letter-spacing: 8px; font-size: 12px; margin-bottom: 20px; color: var(--accent); opacity: 0;">SOMYA DANG</p>
+        <h1 class="title-serif">Design <br><span class="gold">Journal</span></h1>
+    </section>
+
+    <section id="about" class="about-sequence-container">
+        <div class="sticky-wrapper">
+            <div class="sequence-word">Exploring</div>
+            <div class="sequence-word">Creativity</div>
+            <div class="sequence-word">Through</div>
+            <div class="sequence-word">Design &</div>
+            <div class="sequence-word">Technology.</div>
+
+            <div class="efficiency-layout">
+                <div class="eff-left">
+                    <h2>Exploring creativity through  <span> design & technology.</span></h2>
+                    <p>I’m a design student exploring the intersection of creativity and technology. My work focuses on building clean visual systems, experimenting with interaction, and understanding how design can improve user experiences.</p>
+                </div>
+                <div class="eff-right">
+                    <div class="circle-photo">
+                        <img src="IMG_3974.png" alt="Somya Dang">
+                    </div>
+                    <div class="profile-name">Somya Dang</div>
+                    <div class="profile-sub">GRAPHIC ERA HILL UNIVERSITY</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+   <section id="projects">
+    <p style="letter-spacing: 3px; font-size: 10px; color: var(--accent); text-transform: uppercase;">Selected Work</p>
+    <h2 class="title-serif" style="font-size: 6vw; margin-top: 10px;">Explore some of my <span class="gold">featured work</span></h2>
+    
+    <div class="work-list">
+        <a href="Slide 4_3 - 1-2.pdf"  style="text-decoration: none; color: inherit;">
+            <div class="work-item">
+                <h3>Parivaahan Redesign</h3>
+                <div class="work-meta">
+                    <p class="work-category">UX / UI Design</p>
+                    <p class="work-year">2024</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="Slide 4_3 - 1.pdf"  style="text-decoration: none; color: inherit;">
+            <div class="work-item">
+                <h3>Kidway Application</h3>
+                <div class="work-meta">
+                    <p class="work-category">App Design</p>
+                    <p class="work-year">2024</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="Slide 4_3 - 3_compressed.pdf"  style="text-decoration: none; color: inherit;">
+            <div class="work-item">
+                <h3>Café Coffee App</h3>
+                <div class="work-meta">
+                    <p class="work-category">App Design</p>
+                    <p class="work-year">2025</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="MacBook Air - 1.png"  style="text-decoration: none; color: inherit;">
+            <div class="work-item">
+                <h3>LifeLens</h3>
+                <div class="work-meta">
+                    <p class="work-category">App Design</p>
+                    <p class="work-year">2025</p>
+                </div>
+            </div>
+        </a>
+    </div>
+</section>
+
+    <section id="journal">
+        <h2 class="title-serif" style="font-size: 60px;">Journal</h2>
+        <div class="journal-grid">
+            <div class="j-card" onclick="openJournal('week1')">
+                <span>Week 01</span>
+                <h3>Spirituality & Balance</h3>
+            </div>
+            <div class="j-card" onclick="openJournal('week2')">
+                <span>Week 02</span>
+                <h3>Circularity in Design</h3>
+            </div>
+            <div class="j-card" onclick="openJournal('week3')">
+                <span>Week 03</span>
+                <h3>Culture & Connection</h3>
+            </div>
+        </div>
+    </section>
+
+    <div id="journal-modal">
+        <div style="text-align:right; font-weight:bold; cursor:pointer;" onclick="closeJournal()">✕ CLOSE</div>
+        <h1 id="modal-title" style="font-family:'Playfair Display'; font-size:4.5vw; font-style:italic; margin:40px 0;"></h1>
+        <div id="modal-body"></div>
+    </div>
+
+    <section id="contact">
+        <h1 class="title-serif">Let's Talk</h1>
+        <form>
+            <input type="text" placeholder="Your Name">
+            <input type="email" placeholder="Your Email">
+            <textarea placeholder="Tell me about your project" rows="1"></textarea>
+            <button class="btn">Send Inquiry</button>
+        </form>
+    </section>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+        // --- ADDED: Intro Sequence (Keeps other code untouched) ---
+        window.addEventListener('load', () => {
+            const tl = gsap.timeline();
+            tl.from("#loader-name", { opacity: 0, scale: 0.8, duration: 1 })
+              .to("#loader-name", { scale: 1.1, duration: 1, ease: "power2.inOut" })
+              .to("#loader", { yPercent: -100, duration: 1, ease: "expo.inOut" })
+              .to("#main-hero-name", { opacity: 1, duration: 0.5 }, "-=0.3");
+        });
+
+        // 1. Cursor
+        const dot = document.querySelector('#cursor-dot');
+        const outline = document.querySelector('#cursor-outline');
+        window.addEventListener('mousemove', (e) => {
+            gsap.to(dot, {x: e.clientX, y: e.clientY, duration: 0.1});
+            gsap.to(outline, {x: e.clientX - 20, y: e.clientY - 20, duration: 0.3});
+        });
+
+        // 2. Optimized About Sequence
+        let atl = gsap.timeline({
+            scrollTrigger: {
+                trigger: ".about-sequence-container",
+                start: "top top",
+                end: "bottom bottom",
+                scrub: 1,
+                pin: true,
+                anticipatePin: 1
+            }
+        });
+
+        const words = document.querySelectorAll(".sequence-word");
+        words.forEach((word) => {
+            atl.to(word, { opacity: 1, scale: 1, duration: 1, ease: "power2.out" })
+               .to(word, { opacity: 0, scale: 1.2, duration: 1, ease: "power2.in" }, "+=0.2");
+        });
+
+        atl.to(".efficiency-layout", { autoAlpha: 1, y: 0, duration: 2, ease: "power3.out" }, "+=0.1");
+
+        // --- HIGHLIGHT NAV ON SCROLL ---
+        const sections = document.querySelectorAll("section");
+        const navLinks = document.querySelectorAll("nav a");
+
+        sections.forEach((section) => {
+            ScrollTrigger.create({
+                trigger: section,
+                start: "top center",
+                end: "bottom center",
+                onToggle: self => {
+                    if (self.isActive) {
+                        navLinks.forEach(link => {
+                            link.classList.toggle("active", link.getAttribute("href") === "#" + section.id);
+                        });
+                    }
+                }
+            });
+        });
+
+        // Smooth Scroll for Nav
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                gsap.to(window, {scrollTo: link.getAttribute("href"), duration: 1.2, ease: "power2.inOut"});
+            });
+        });
+
+        // Journal & Nav Logic
+        const data = {
+            week1: { title: "Spirituality & Balance", body: "This week was a mix of travel, spiritual experiences, and returning to my daily routine. I visited Beas where attending satsang and participating in sewa brought a sense of calm and reflection. Listening to the teachings helped me think about the difference between needs and wants and appreciate simplicity in life. Spending time with people there, sharing conversations, and helping with small responsibilities made the experience meaningful. After returning home, reconnecting with my family and friends and getting back into my academic routine felt refreshing. Overall, the week helped me understand the value of spirituality, gratitude, and maintaining balance between inner peace and daily responsibilities." },
+            week2: { title: "Circularity in Design", body: "This week focused more on academics and personal growth. College sessions introduced us to new concepts such as circularity in design, which opened my mind to different career possibilities in the field of design. Along with studying and completing assignments, I also spent time supporting friends emotionally and collaborating on academic tasks. Balancing college work, family time, and personal routines like walks, skincare, and daily chants helped me stay organized and grounded. The week reminded me that learning is not only about academics but also about building understanding, empathy, and discipline in everyday life." },
+            week3: { title: "Culture & Connection", body: "This week was filled with a balance of routine, social interactions, and emotional reflection. Attending cultural events in college, spending time with friends, and celebrating small moments such as Galentine’s Day and family gatherings brought joy and connection. A musical performance during a college event made me feel deeply emotional and grateful for the blessings in my life. At the same time, I stayed consistent with my studies and daily habits. Overall, the week helped me realize that growth comes from maintaining balance between responsibilities, relationships, and personal well-being." }
+        };
+
+        function openJournal(id) {
+            document.getElementById('modal-title').innerText = data[id].title;
+            document.getElementById('modal-body').innerText = data[id].body;
+            document.getElementById('journal-modal').style.display = 'block';
+            gsap.fromTo("#journal-modal", {y: "100%"}, {y: 0, duration: 0.8});
+        }
+
+        function closeJournal() {
+            gsap.to("#journal-modal", { y: "100%", duration: 0.6, onComplete: () => document.getElementById('journal-modal').style.display='none' });
+        }
+
+        document.querySelectorAll('a, .work-item, .j-card, .btn').forEach(item => {
+            item.addEventListener('mouseenter', () => gsap.to(outline, { scale: 2, duration: 0.3 }));
+            item.addEventListener('mouseleave', () => gsap.to(outline, { scale: 1, duration: 0.3 }));
+        });
+    </script>
+</body>
+</html>
